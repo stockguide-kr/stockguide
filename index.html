@@ -1,0 +1,1039 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>김수환 StockGuide — 한국 기업 재무분석 플랫폼</title>
+
+<!-- SEO 기본 태그 -->
+<meta name="description" content="김수환의 한국 기업 재무분석 플랫폼 StockGuide. KOSPI·KOSDAQ 50개 대표 기업의 재무제표, PER·PBR·ROE 투자지표, 종목 비교 분석을 한눈에. 김수환 투자분석으로 현명한 투자 결정을 내리세요.">
+<meta name="keywords" content="김수환, 김수환 StockGuide, 김수환 투자분석, 김수환 주식, 재무제표, 주식 분석, 기업 분석, KOSPI, KOSDAQ, 삼성전자, SK하이닉스, 투자 분석, PER, PBR, ROE, 종목 비교">
+<meta name="author" content="김수환">
+<meta name="robots" content="index, follow">
+<meta name="google-site-verification" content="aSQJTNnUkxm3RJQFiyiOB61Jk8ietp-xEqGsMUcs2BY" />
+<link rel="canonical" href="https://stockguide-kr.netlify.app">
+
+<!-- Favicon -->
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%230b0d12'/%3E%3Cpolyline points='3,24 9,16 14,20 20,10 26,14' stroke='%234f8ef7' stroke-width='2.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpolyline points='20,10 26,14' stroke='%2350e3a4' stroke-width='2.5' fill='none' stroke-linecap='round'/%3E%3Ccircle cx='26' cy='14' r='2' fill='%2350e3a4'/%3E%3C/svg%3E">
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%230b0d12'/%3E%3Cpolyline points='3,24 9,16 14,20 20,10 26,14' stroke='%234f8ef7' stroke-width='2.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpolyline points='20,10 26,14' stroke='%2350e3a4' stroke-width='2.5' fill='none' stroke-linecap='round'/%3E%3Ccircle cx='26' cy='14' r='2' fill='%2350e3a4'/%3E%3C/svg%3E">
+
+<!-- Open Graph (카카오톡·SNS 공유 시 미리보기) -->
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://stockguide-kr.netlify.app">
+<meta property="og:title" content="김수환 StockGuide — 한국 기업 재무분석 플랫폼">
+<meta property="og:description" content="김수환의 투자분석 플랫폼. KOSPI·KOSDAQ 50개 대표 기업의 재무제표와 투자지표를 한눈에.">
+<meta property="og:locale" content="ko_KR">
+
+<!-- Twitter Card -->
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="김수환 StockGuide — 한국 기업 재무분석 플랫폼">
+<meta name="twitter:description" content="김수환의 투자분석 플랫폼. KOSPI·KOSDAQ 50개 대표 기업 재무제표 한눈에.">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&family=DM+Mono:wght@400;500&family=Bebas+Neue&display=swap" rel="stylesheet">
+<!-- Firebase SDK -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+  import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged }
+    from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyCP6pt2oitDMqdbyKJYC2anyHeR_JhSDbU",
+    authDomain: "investlens-c5b13.firebaseapp.com",
+    projectId: "investlens-c5b13",
+    storageBucket: "investlens-c5b13.firebasestorage.app",
+    messagingSenderId: "1038102842152",
+    appId: "1:1038102842152:web:81c4bfef13307dd0d25e1d"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const provider = new GoogleAuthProvider();
+
+  // 관리자 이메일
+  const ADMIN_EMAIL = 'suhwangjm01@gmail.com';
+
+  window.googleLogin = async () => {
+    try {
+      await signInWithPopup(auth, provider);
+    } catch(e) {
+      if (e.code !== 'auth/popup-closed-by-user') {
+        showToast('❌ 로그인 중 오류가 발생했습니다.');
+      }
+    }
+  };
+
+  window.googleLogout = async () => {
+    await signOut(auth);
+    showToast('👋 로그아웃 되었습니다.');
+  };
+
+  onAuthStateChanged(auth, (user) => {
+    if (user) {
+      const isAdmin = user.email === ADMIN_EMAIL;
+      document.getElementById('userAvatar').src = user.photoURL || '';
+      document.getElementById('userName').textContent = (isAdmin ? '👑 ' : '') + (user.displayName || user.email);
+      document.getElementById('userEmail').textContent = user.email;
+      document.getElementById('loginBtn').style.display = 'none';
+      document.getElementById('userInfo').style.display = 'flex';
+      // 노트 작성 영역 활성화
+      document.getElementById('noteWriteArea').style.display = 'block';
+      document.getElementById('noteLoginPrompt').style.display = 'none';
+    } else {
+      document.getElementById('loginBtn').style.display = 'flex';
+      document.getElementById('userInfo').style.display = 'none';
+      // 노트 작성 영역 비활성화
+      document.getElementById('noteWriteArea').style.display = 'none';
+      document.getElementById('noteLoginPrompt').style.display = 'block';
+    }
+  });
+</script>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #0b0d12;
+  --bg2: #10131a;
+  --bg3: #161923;
+  --surface: #1c2030;
+  --surface2: #222638;
+  --border: rgba(255,255,255,0.06);
+  --border2: rgba(255,255,255,0.11);
+  --accent: #4f8ef7;
+  --accent2: #50e3a4;
+  --accent3: #f5a623;
+  --red: #f06060;
+  --text: #dde1ef;
+  --text2: #7d839e;
+  --text3: #484e65;
+  --mono: 'DM Mono', monospace;
+  --sans: 'Noto Sans KR', sans-serif;
+  --display: 'Bebas Neue', sans-serif;
+  --r: 10px; --r-sm: 6px;
+}
+body { font-family: var(--sans); background: var(--bg); color: var(--text); min-height: 100vh; font-size: 13px; line-height: 1.6; }
+
+/* ── LOGIN SCREEN ── */
+#loginScreen {
+  display: flex; align-items: center; justify-content: center;
+  min-height: 100vh; background: var(--bg);
+  position: fixed; inset: 0; z-index: 999;
+}
+.login-card {
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-radius: 20px;
+  padding: 52px 44px;
+  text-align: center;
+  width: 380px;
+  position: relative;
+  overflow: hidden;
+}
+.login-card::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 3px;
+  background: linear-gradient(90deg, var(--accent), var(--accent2));
+}
+.login-logo {
+  font-family: var(--display);
+  font-size: 36px; letter-spacing: 4px;
+  color: var(--accent); margin-bottom: 6px;
+}
+.login-tagline {
+  font-size: 12px; color: var(--text3);
+  font-family: var(--mono); margin-bottom: 36px;
+  letter-spacing: 1px;
+}
+.login-title {
+  font-size: 18px; font-weight: 500;
+  margin-bottom: 8px; color: var(--text);
+}
+.login-desc {
+  font-size: 12px; color: var(--text2);
+  line-height: 1.8; margin-bottom: 32px;
+}
+.btn-google {
+  display: flex; align-items: center; justify-content: center; gap: 12px;
+  width: 100%; padding: 13px 20px;
+  background: white; color: #1f1f1f;
+  border: none; border-radius: var(--r);
+  font-size: 14px; font-weight: 500;
+  font-family: var(--sans); cursor: pointer;
+  transition: all .2s; margin-bottom: 16px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+}
+.btn-google:hover { background: #f5f5f5; transform: translateY(-1px); box-shadow: 0 4px 16px rgba(0,0,0,0.4); }
+.btn-google:active { transform: translateY(0); }
+.google-icon { width: 20px; height: 20px; }
+.login-notice {
+  font-size: 11px; color: var(--text3);
+  line-height: 1.7; margin-top: 20px;
+}
+.login-notice strong { color: var(--accent2); }
+#loginError {
+  display: none; margin-top: 12px;
+  background: rgba(240,96,96,0.1); border: 1px solid rgba(240,96,96,0.3);
+  border-radius: var(--r-sm); padding: 8px 14px;
+  font-size: 12px; color: var(--red);
+}
+.login-deco {
+  position: absolute; bottom: -30px; right: -30px;
+  font-family: var(--display); font-size: 120px;
+  color: rgba(255,255,255,0.02); letter-spacing: 0;
+  pointer-events: none; line-height: 1;
+}
+
+/* ── APP SCREEN ── */
+#appScreen { display: none; }
+
+/* ── NAV ── */
+nav {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 28px; height: 56px;
+  border-bottom: 1px solid var(--border);
+  background: rgba(11,13,18,0.95);
+  position: sticky; top: 0; z-index: 200;
+  backdrop-filter: blur(8px);
+}
+.logo { font-family: var(--display); font-size: 22px; letter-spacing: 2px; color: var(--accent); }
+.logo em { color: var(--text3); font-style: normal; font-size: 11px; font-family: var(--mono); letter-spacing: 0; margin-left: 6px; vertical-align: middle; }
+.nav-tabs { display: flex; gap: 2px; }
+.nav-tab {
+  padding: 5px 15px; border-radius: 20px;
+  font-size: 12px; cursor: pointer; color: var(--text2);
+  border: none; background: none; font-family: var(--sans); transition: all .2s;
+}
+.nav-tab.active { background: var(--surface2); color: var(--text); }
+.nav-tab:hover:not(.active) { color: var(--text); }
+.nav-user { display: flex; align-items: center; gap: 10px; }
+.user-avatar { width: 30px; height: 30px; border-radius: 50%; border: 1px solid var(--border2); object-fit: cover; }
+.user-avatar-placeholder { width: 30px; height: 30px; border-radius: 50%; background: var(--accent); display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 500; color: white; }
+.user-info { line-height: 1.3; }
+.user-name { font-size: 12px; font-weight: 500; color: var(--text); }
+.user-email-nav { font-size: 10px; color: var(--text3); font-family: var(--mono); }
+.btn-logout {
+  background: none; border: 1px solid var(--border2);
+  border-radius: var(--r-sm); padding: 4px 10px;
+  font-size: 11px; color: var(--text3);
+  cursor: pointer; font-family: var(--sans); transition: all .15s;
+}
+.btn-logout:hover { border-color: var(--red); color: var(--red); }
+
+/* ── PAGES ── */
+.page { display: none; }
+.page.active { display: block; }
+
+/* ── LAYOUT ── */
+.content-grid { display: grid; grid-template-columns: 1fr 360px; min-height: calc(100vh - 56px); }
+.main-col { padding: 24px 28px; border-right: 1px solid var(--border); overflow-y: auto; }
+.side-col { padding: 20px; background: var(--bg2); overflow-y: auto; }
+
+/* ── SEARCH ── */
+.search-wrap { display: flex; gap: 8px; margin-bottom: 20px; }
+.search-box {
+  flex: 1; display: flex; align-items: center; gap: 10px;
+  background: var(--surface); border: 1px solid var(--border2);
+  border-radius: var(--r); padding: 9px 14px; transition: border-color .2s;
+}
+.search-box:focus-within { border-color: var(--accent); }
+.search-box input { flex: 1; background: none; border: none; outline: none; color: var(--text); font-size: 14px; font-family: var(--sans); }
+.search-box input::placeholder { color: var(--text3); }
+.search-hint { font-size: 11px; color: var(--text3); font-family: var(--mono); white-space: nowrap; }
+
+/* ── WATCHLIST ── */
+.watchlist { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 22px; }
+.wchip {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 11px; padding: 4px 10px; border-radius: 20px;
+  border: 1px solid var(--border2); color: var(--text2);
+  background: var(--surface); cursor: pointer; transition: all .15s; font-family: var(--mono);
+}
+.wchip:hover, .wchip.active { border-color: var(--accent); color: var(--accent); background: rgba(79,142,247,.08); }
+.wchip .up { color: var(--red); } .wchip .dn { color: var(--accent2); }
+
+/* ── COMPANY HEADER ── */
+.co-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; }
+.co-name { font-size: 20px; font-weight: 700; margin-bottom: 6px; }
+.co-meta { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.tag { font-size: 10px; padding: 2px 8px; border-radius: 4px; font-family: var(--mono); }
+.tag-ticker { background: rgba(79,142,247,.12); color: var(--accent); border: 1px solid rgba(79,142,247,.22); }
+.tag-sector { background: var(--surface); color: var(--text2); border: 1px solid var(--border2); }
+.tag-market { background: rgba(80,227,164,.1); color: var(--accent2); border: 1px solid rgba(80,227,164,.2); }
+.price-block { text-align: right; }
+.price-main { font-family: var(--mono); font-size: 24px; font-weight: 500; }
+.price-chg { font-family: var(--mono); font-size: 12px; margin-top: 3px; }
+.price-date { font-family: var(--mono); font-size: 10px; color: var(--text3); margin-top: 2px; }
+.up-c { color: var(--red); } .dn-c { color: var(--accent2); }
+
+/* ── KPI GRID ── */
+.kpi-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 10px; margin-bottom: 22px; }
+.kpi { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-sm); padding: 13px 14px; }
+.kpi-lbl { font-size: 10px; color: var(--text3); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 5px; }
+.kpi-val { font-family: var(--mono); font-size: 17px; font-weight: 500; }
+.kpi-sub { font-size: 10px; color: var(--text3); margin-top: 3px; }
+.c-blue { color: var(--accent); } .c-green { color: var(--accent2); } .c-amber { color: var(--accent3); } .c-red { color: var(--red); }
+
+/* ── SECTION LABEL ── */
+.slabel {
+  font-size: 10px; text-transform: uppercase; letter-spacing: 1px;
+  color: var(--text3); margin-bottom: 10px;
+  display: flex; align-items: center; gap: 8px;
+}
+.slabel::after { content:''; flex:1; height:1px; background: var(--border); }
+
+/* ── FS TABS ── */
+.fs-tabs { display: flex; gap: 2px; margin-bottom: 14px; }
+.fs-tab {
+  padding: 4px 13px; border-radius: 5px; font-size: 11px;
+  cursor: pointer; color: var(--text2); background: none;
+  border: none; font-family: var(--sans); transition: all .15s;
+}
+.fs-tab.active { background: var(--surface2); color: var(--text); }
+.fs-tab:hover:not(.active) { color: var(--text); }
+
+/* ── TABLE ── */
+.fs-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+.fs-table th { text-align: right; font-family: var(--mono); font-weight: 500; font-size: 10px; color: var(--text3); padding: 5px 10px; border-bottom: 1px solid var(--border); }
+.fs-table th:first-child { text-align: left; }
+.fs-table td { padding: 7px 10px; text-align: right; border-bottom: 1px solid var(--border); color: var(--text2); font-family: var(--mono); }
+.fs-table td:first-child { text-align: left; color: var(--text); font-family: var(--sans); font-size: 12px; }
+.fs-table tr:last-child td { border-bottom: none; }
+.fs-table tr:hover td { background: rgba(255,255,255,.02); }
+.pos { color: var(--accent2) !important; } .neg { color: var(--red) !important; }
+
+/* ── CHART ── */
+.rev-chart { display:flex; align-items:flex-end; gap:12px; height:130px; padding:0; margin-bottom:8px; }
+.rev-col { flex:1; display:flex; flex-direction:column; align-items:center; gap:5px; height:100%; justify-content:flex-end; }
+.rev-bar { width:80%; border-radius:3px 3px 0 0; }
+.rev-val { font-family:var(--mono); font-size:10px; white-space:nowrap; }
+.rev-lbl { font-family:var(--mono); font-size:10px; color:var(--text3); }
+
+/* ── RATIO GRID ── */
+.ratio-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 22px; }
+.ratio-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-sm); padding: 12px; }
+.ratio-name { font-size: 10px; color: var(--text3); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 5px; }
+.ratio-val { font-family: var(--mono); font-size: 15px; font-weight: 500; margin-bottom: 6px; }
+.ratio-bar-bg { height: 3px; background: var(--border2); border-radius: 2px; }
+.ratio-fill { height: 100%; border-radius: 2px; transition: width .6s ease; }
+.ratio-bench { font-size: 10px; color: var(--text3); margin-top: 4px; }
+
+/* ── NEWS (side) ── */
+.side-header { font-size: 12px; font-weight: 500; margin-bottom: 14px; display: flex; justify-content: space-between; align-items: center; }
+.live-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent2); display: inline-block; margin-right: 5px; animation: blink 2s infinite; }
+@keyframes blink { 0%,100%{opacity:1}50%{opacity:.4} }
+.news-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--r-sm); padding: 12px; margin-bottom: 8px;
+  cursor: pointer; transition: border-color .15s;
+}
+.news-card:hover { border-color: var(--border2); }
+.news-card.sel { border-color: var(--accent); background: rgba(79,142,247,.05); }
+.news-src { font-size: 9px; color: var(--accent); font-family: var(--mono); text-transform: uppercase; margin-bottom: 3px; }
+.news-ttl { font-size: 12px; line-height: 1.5; font-weight: 500; margin-bottom: 5px; }
+.news-time { font-size: 10px; color: var(--text3); font-family: var(--mono); }
+.ntag { display: inline-block; font-size: 9px; padding: 1px 6px; border-radius: 3px; margin-right: 3px; margin-top: 3px; }
+.ntag-m { background: rgba(245,166,35,.12); color: var(--accent3); border: 1px solid rgba(245,166,35,.2); }
+.ntag-s { background: rgba(79,142,247,.1); color: var(--accent); border: 1px solid rgba(79,142,247,.2); }
+.ntag-e { background: rgba(80,227,164,.1); color: var(--accent2); border: 1px solid rgba(80,227,164,.2); }
+
+/* ── NOTE ── */
+.note-section { border-top: 1px solid var(--border); margin-top: 14px; padding-top: 14px; }
+.note-lbl { font-size: 10px; color: var(--text3); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 6px; }
+.note-target { font-size: 11px; color: var(--text2); margin-bottom: 7px; min-height: 16px; }
+textarea.note-input {
+  width: 100%; background: var(--surface); border: 1px solid var(--border2);
+  border-radius: var(--r-sm); padding: 10px; color: var(--text);
+  font-family: var(--sans); font-size: 12px; line-height: 1.6;
+  resize: vertical; min-height: 100px; outline: none; transition: border-color .2s;
+}
+textarea.note-input:focus { border-color: var(--accent); }
+textarea.note-input::placeholder { color: var(--text3); }
+.note-actions { display: flex; justify-content: flex-end; gap: 6px; margin-top: 6px; }
+.saved-notes { margin-top: 12px; }
+.saved-note {
+  background: var(--bg3); border-left: 2px solid var(--accent);
+  border-radius: 0 var(--r-sm) var(--r-sm) 0;
+  padding: 9px 11px; margin-bottom: 7px;
+  font-size: 11px; color: var(--text2); line-height: 1.6;
+}
+.saved-note-hd { font-family: var(--mono); font-size: 9px; color: var(--text3); margin-bottom: 4px; }
+
+/* ── COMPARE PAGE ── */
+.compare-wrap { padding: 24px 28px; }
+.compare-search-row { display: flex; gap: 10px; margin-bottom: 24px; flex-wrap: wrap; }
+.comp-slot {
+  flex: 1; min-width: 180px;
+  background: var(--surface); border: 1px solid var(--border2);
+  border-radius: var(--r); padding: 10px 14px;
+  display: flex; align-items: center; gap: 8px;
+}
+.comp-slot input { flex: 1; background: none; border: none; outline: none; color: var(--text); font-family: var(--sans); font-size: 13px; }
+.comp-slot input::placeholder { color: var(--text3); }
+.comp-slot-label { font-size: 10px; color: var(--text3); font-family: var(--mono); white-space: nowrap; }
+.comp-table-wrap { overflow-x: auto; }
+.comp-table { width: 100%; border-collapse: collapse; font-size: 12px; min-width: 600px; }
+.comp-table th { padding: 10px 14px; border-bottom: 1px solid var(--border2); font-size: 11px; font-weight: 500; }
+.comp-table th:first-child { text-align: left; color: var(--text3); font-family: var(--mono); }
+.comp-table th:not(:first-child) { text-align: center; font-family: var(--sans); }
+.comp-table td { padding: 8px 14px; border-bottom: 1px solid var(--border); }
+.comp-table td:first-child { color: var(--text2); font-size: 11px; }
+.comp-table td:not(:first-child) { text-align: center; font-family: var(--mono); font-size: 12px; }
+.comp-table tr:last-child td { border-bottom: none; }
+.comp-table tr:hover td { background: rgba(255,255,255,.02); }
+.comp-best { color: var(--accent2); font-weight: 500; }
+.comp-worst { color: var(--red); }
+.comp-section { font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: var(--text3); background: var(--bg2); }
+.comp-section td { padding: 10px 14px 4px; border-bottom: none; font-family: var(--mono); }
+.comp-chart-row { display: grid; gap: 16px; margin-top: 24px; }
+.comp-chart-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r); padding: 16px; }
+.comp-chart-title { font-size: 11px; color: var(--text2); margin-bottom: 12px; }
+.comp-bar-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+.comp-bar-name { font-size: 11px; color: var(--text2); width: 90px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.comp-bar-bg { flex: 1; height: 20px; background: var(--bg3); border-radius: 3px; overflow: hidden; }
+.comp-bar-fill { height: 100%; border-radius: 3px; display: flex; align-items: center; padding-left: 8px; transition: width .7s ease; }
+.comp-bar-fill span { font-family: var(--mono); font-size: 10px; font-weight: 500; white-space: nowrap; }
+
+/* ── BTN ── */
+.btn-primary { background: var(--accent); color: #fff; border: none; border-radius: var(--r-sm); padding: 7px 16px; font-size: 12px; font-family: var(--sans); font-weight: 500; cursor: pointer; transition: opacity .2s; white-space: nowrap; }
+.btn-primary:hover { opacity: .85; }
+.btn-ghost { background: var(--surface2); color: var(--text2); border: none; border-radius: var(--r-sm); padding: 7px 14px; font-size: 12px; font-family: var(--sans); cursor: pointer; transition: background .15s; }
+.btn-ghost:hover { background: var(--border2); color: var(--text); }
+
+/* ── TOAST ── */
+.toast { position: fixed; bottom: 20px; right: 20px; z-index: 999; background: var(--surface2); border: 1px solid var(--border2); border-radius: var(--r-sm); padding: 9px 16px; font-size: 12px; opacity: 0; transform: translateY(6px); transition: all .25s; pointer-events: none; }
+.toast.show { opacity: 1; transform: translateY(0); }
+
+/* ── NOTES PAGE ── */
+.notes-page-wrap { padding: 24px 28px; }
+</style>
+</head>
+<body>
+
+<!-- ══ APP SCREEN ══ -->
+<div id="appScreen" style="display:block">
+
+  <!-- NAV -->
+  <nav>
+    <div class="logo">STOCKGUIDE <em>PRO</em></div>
+    <div class="nav-tabs">
+      <button class="nav-tab active" onclick="showPage('fs',this)">재무분석</button>
+      <button class="nav-tab" onclick="showPage('compare',this)">종목비교</button>
+      <button class="nav-tab" onclick="showPage('notes',this)">내 노트</button>
+    </div>
+    <div class="nav-user">
+      <button id="loginBtn" onclick="googleLogin()" style="display:flex;align-items:center;gap:8px;background:var(--surface);border:1px solid var(--border2);border-radius:var(--r-sm);padding:5px 14px;cursor:pointer;color:var(--text);font-size:12px;font-family:var(--sans);transition:all .2s;">
+        <svg width="14" height="14" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+        Google 로그인
+      </button>
+      <div id="userInfo" style="display:none;align-items:center;gap:10px;">
+        <img class="user-avatar" id="userAvatar" src="" alt="" onerror="this.style.display='none'">
+        <div class="user-info">
+          <div class="user-name" id="userName"></div>
+          <div class="user-email-nav" id="userEmail"></div>
+        </div>
+        <button class="btn-logout" onclick="googleLogout()">로그아웃</button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ══ PAGE: 재무분석 ══ -->
+  <div class="page active" id="page-fs">
+    <div class="content-grid">
+      <div class="main-col">
+
+        <div class="search-wrap">
+          <div class="search-box">
+            <span style="color:var(--text3);font-size:15px">⌕</span>
+            <input type="text" id="searchInput" placeholder="기업명 또는 종목코드  (예: 삼성전자, 005930)" onkeydown="if(event.key==='Enter')doSearch()" />
+            <span class="search-hint">Enter ↵</span>
+          </div>
+          <button class="btn-primary" onclick="doSearch()">조회</button>
+        </div>
+
+        <!-- 종목 리스트 토글 -->
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+          <span style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:1px;">관심종목 <span id="wlCount" style="color:var(--accent)">50</span>개</span>
+          <button onclick="toggleWatchlist()" id="wlToggleBtn" style="display:flex;align-items:center;gap:5px;background:var(--surface);border:1px solid var(--border2);border-radius:var(--r-sm);padding:3px 10px;font-size:11px;color:var(--text2);cursor:pointer;font-family:var(--sans);">
+            <span id="wlToggleIcon">▼</span> 펼치기
+          </button>
+        </div>
+        <!-- 업종 필터 + 종목칩 (기본 접힘) -->
+        <div id="wlPanel" style="display:none;margin-bottom:14px;">
+          <div style="display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap;">
+            <button class="fs-tab active" onclick="filterSector('전체',this)" style="font-size:11px;">전체</button>
+            <button class="fs-tab" onclick="filterSector('반도체/IT',this)" style="font-size:11px;">반도체/IT</button>
+            <button class="fs-tab" onclick="filterSector('자동차',this)" style="font-size:11px;">자동차</button>
+            <button class="fs-tab" onclick="filterSector('바이오/제약',this)" style="font-size:11px;">바이오/제약</button>
+            <button class="fs-tab" onclick="filterSector('에너지/화학',this)" style="font-size:11px;">에너지/화학</button>
+            <button class="fs-tab" onclick="filterSector('유통/소비',this)" style="font-size:11px;">유통/소비</button>
+          </div>
+          <div class="watchlist" id="watchlist">
+          <div class="wchip active" onclick="quickLoad('삼성전자',this)" data-sector="반도체/IT">005930 삼성전자 <span class="up">+1.2%</span></div>
+          <div class="wchip" onclick="quickLoad('SK하이닉스',this)" data-sector="반도체/IT">000660 SK하이닉스 <span class="up">+2.8%</span></div>
+          <div class="wchip" onclick="quickLoad('NAVER',this)" data-sector="반도체/IT">035420 NAVER <span class="dn">-0.6%</span></div>
+          <div class="wchip" onclick="quickLoad('카카오',this)" data-sector="반도체/IT">035720 카카오 <span class="dn">-1.1%</span></div>
+          <div class="wchip" onclick="quickLoad('LG전자',this)" data-sector="반도체/IT">066570 LG전자 <span class="up">+1.2%</span></div>
+          <div class="wchip" onclick="quickLoad('LG디스플레이',this)" data-sector="반도체/IT">034220 LG디스플레이 <span class="dn">-1.6%</span></div>
+          <div class="wchip" onclick="quickLoad('삼성SDI',this)" data-sector="반도체/IT">006400 삼성SDI <span class="dn">-1.2%</span></div>
+          <div class="wchip" onclick="quickLoad('크래프톤',this)" data-sector="반도체/IT">259960 크래프톤 <span class="up">+1.6%</span></div>
+          <div class="wchip" onclick="quickLoad('카카오뱅크',this)" data-sector="반도체/IT">323410 카카오뱅크 <span class="dn">-1.5%</span></div>
+          <div class="wchip" onclick="quickLoad('HPSP',this)" data-sector="반도체/IT">403870 HPSP <span class="up">+2.3%</span></div>
+          <div class="wchip" onclick="quickLoad('리노공업',this)" data-sector="반도체/IT">058470 리노공업 <span class="up">+1.2%</span></div>
+          <div class="wchip" onclick="quickLoad('현대차',this)" data-sector="자동차">005380 현대차 <span class="up">+0.2%</span></div>
+          <div class="wchip" onclick="quickLoad('기아',this)" data-sector="자동차">000270 기아 <span class="up">+1.2%</span></div>
+          <div class="wchip" onclick="quickLoad('현대모비스',this)" data-sector="자동차">012330 현대모비스 <span class="dn">-0.4%</span></div>
+          <div class="wchip" onclick="quickLoad('HL만도',this)" data-sector="자동차">204320 HL만도 <span class="up">+1.2%</span></div>
+          <div class="wchip" onclick="quickLoad('현대위아',this)" data-sector="자동차">011210 현대위아 <span class="dn">-1.3%</span></div>
+          <div class="wchip" onclick="quickLoad('한온시스템',this)" data-sector="자동차">018880 한온시스템 <span class="up">+1.4%</span></div>
+          <div class="wchip" onclick="quickLoad('현대제철',this)" data-sector="자동차">004020 현대제철 <span class="dn">-1.4%</span></div>
+          <div class="wchip" onclick="quickLoad('삼성바이오로직스',this)" data-sector="바이오/제약">207940 삼성바이오 <span class="up">+1.2%</span></div>
+          <div class="wchip" onclick="quickLoad('셀트리온',this)" data-sector="바이오/제약">068270 셀트리온 <span class="dn">-1.2%</span></div>
+          <div class="wchip" onclick="quickLoad('유한양행',this)" data-sector="바이오/제약">000100 유한양행 <span class="up">+1.3%</span></div>
+          <div class="wchip" onclick="quickLoad('한미약품',this)" data-sector="바이오/제약">128940 한미약품 <span class="up">+1.1%</span></div>
+          <div class="wchip" onclick="quickLoad('종근당',this)" data-sector="바이오/제약">185750 종근당 <span class="dn">-0.4%</span></div>
+          <div class="wchip" onclick="quickLoad('대웅제약',this)" data-sector="바이오/제약">069620 대웅제약 <span class="up">+1.6%</span></div>
+          <div class="wchip" onclick="quickLoad('HLB',this)" data-sector="바이오/제약">028300 HLB <span class="up">+2.4%</span></div>
+          <div class="wchip" onclick="quickLoad('알테오젠',this)" data-sector="바이오/제약">196170 알테오젠 <span class="up">+1.9%</span></div>
+          <div class="wchip" onclick="quickLoad('에스티팜',this)" data-sector="바이오/제약">237690 에스티팜 <span class="dn">-0.9%</span></div>
+          <div class="wchip" onclick="quickLoad('리가켐바이오',this)" data-sector="바이오/제약">141080 리가켐바이오 <span class="up">+1.6%</span></div>
+          <div class="wchip" onclick="quickLoad('POSCO홀딩스',this)" data-sector="에너지/화학">005490 POSCO홀딩스 <span class="dn">-0.7%</span></div>
+          <div class="wchip" onclick="quickLoad('LG화학',this)" data-sector="에너지/화학">051910 LG화학 <span class="dn">-1.2%</span></div>
+          <div class="wchip" onclick="quickLoad('LG에너지솔루션',this)" data-sector="에너지/화학">373220 LG에너지솔루션 <span class="dn">-1.1%</span></div>
+          <div class="wchip" onclick="quickLoad('롯데케미칼',this)" data-sector="에너지/화학">011170 롯데케미칼 <span class="dn">-1.2%</span></div>
+          <div class="wchip" onclick="quickLoad('SK이노베이션',this)" data-sector="에너지/화학">096770 SK이노베이션 <span class="up">+1.2%</span></div>
+          <div class="wchip" onclick="quickLoad('S-Oil',this)" data-sector="에너지/화학">010950 S-Oil <span class="dn">-1.0%</span></div>
+          <div class="wchip" onclick="quickLoad('GS',this)" data-sector="에너지/화학">078930 GS <span class="up">+0.8%</span></div>
+          <div class="wchip" onclick="quickLoad('한화솔루션',this)" data-sector="에너지/화학">009830 한화솔루션 <span class="dn">-1.5%</span></div>
+          <div class="wchip" onclick="quickLoad('효성첨단소재',this)" data-sector="에너지/화학">298050 효성첨단소재 <span class="up">+1.2%</span></div>
+          <div class="wchip" onclick="quickLoad('OCI홀딩스',this)" data-sector="에너지/화학">010060 OCI홀딩스 <span class="dn">-1.0%</span></div>
+          <div class="wchip" onclick="quickLoad('삼성물산',this)" data-sector="유통/소비">028260 삼성물산 <span class="up">+1.0%</span></div>
+          <div class="wchip" onclick="quickLoad('롯데쇼핑',this)" data-sector="유통/소비">023530 롯데쇼핑 <span class="dn">-1.4%</span></div>
+          <div class="wchip" onclick="quickLoad('이마트',this)" data-sector="유통/소비">139480 이마트 <span class="dn">-1.3%</span></div>
+          <div class="wchip" onclick="quickLoad('신세계',this)" data-sector="유통/소비">004170 신세계 <span class="up">+1.3%</span></div>
+          <div class="wchip" onclick="quickLoad('현대백화점',this)" data-sector="유통/소비">069960 현대백화점 <span class="dn">-1.2%</span></div>
+          <div class="wchip" onclick="quickLoad('CJ제일제당',this)" data-sector="유통/소비">097950 CJ제일제당 <span class="dn">-1.2%</span></div>
+          <div class="wchip" onclick="quickLoad('오리온',this)" data-sector="유통/소비">271560 오리온 <span class="up">+1.2%</span></div>
+          <div class="wchip" onclick="quickLoad('하이브',this)" data-sector="유통/소비">352820 하이브 <span class="dn">-1.1%</span></div>
+          <div class="wchip" onclick="quickLoad('아모레퍼시픽',this)" data-sector="유통/소비">090430 아모레퍼시픽 <span class="up">+1.6%</span></div>
+          <div class="wchip" onclick="quickLoad('BGF리테일',this)" data-sector="유통/소비">282330 BGF리테일 <span class="up">+1.4%</span></div>
+          <div class="wchip" onclick="quickLoad('GS리테일',this)" data-sector="유통/소비">007070 GS리테일 <span class="dn">-1.3%</span></div>
+          <div class="wchip" onclick="quickLoad('호텔신라',this)" data-sector="유통/소비">008770 호텔신라 <span class="dn">-1.2%</span></div>
+          <div class="wchip" onclick="quickLoad('SK스퀘어',this)" data-sector="반도체/IT">402340 SK스퀘어 <span class="up">+1.2%</span></div>
+          </div><!-- /watchlist -->
+        </div><!-- /wlPanel -->
+
+        <div class="co-header">
+          <div>
+            <div class="co-name" id="coName">삼성전자</div>
+            <div class="co-meta">
+              <span class="tag tag-ticker" id="coTicker">005930</span>
+              <span class="tag tag-sector" id="coSector">반도체 · 전기전자</span>
+              <span class="tag tag-market">KOSPI</span>
+            </div>
+          </div>
+          <div class="price-block">
+            <div class="price-main" id="coPrice">78,400<span style="font-size:13px;color:var(--text2)">원</span></div>
+            <div class="price-chg up-c" id="coChg">▲ 900 (+1.16%)</div>
+            <div class="price-date">2026.03.20 장마감</div>
+          </div>
+        </div>
+
+        <div class="kpi-grid">
+          <div class="kpi"><div class="kpi-lbl">시가총액</div><div class="kpi-val c-blue" id="kpi-cap">468조원</div><div class="kpi-sub">KOSPI 1위</div></div>
+          <div class="kpi"><div class="kpi-lbl">PER</div><div class="kpi-val c-amber" id="kpi-per">14.2x</div><div class="kpi-sub">업종 평균 18.4x</div></div>
+          <div class="kpi"><div class="kpi-lbl">PBR</div><div class="kpi-val c-green" id="kpi-pbr">1.38x</div><div class="kpi-sub">업종 평균 1.82x</div></div>
+          <div class="kpi"><div class="kpi-lbl">ROE</div><div class="kpi-val c-green" id="kpi-roe">12.4%</div><div class="kpi-sub">전년 9.7%</div></div>
+        </div>
+
+        <div class="slabel">연간 매출 추이</div>
+        <div id="revenueChart" style="margin-bottom:22px;"></div>
+
+        <div class="slabel">재무제표</div>
+        <div class="fs-tabs">
+          <button class="fs-tab active" onclick="switchFsTab('income',this)">손익계산서</button>
+          <button class="fs-tab" onclick="switchFsTab('balance',this)">재무상태표</button>
+          <button class="fs-tab" onclick="switchFsTab('cashflow',this)">현금흐름표</button>
+        </div>
+
+        <div id="fs-income"><table class="fs-table" id="tbl-income">
+          <thead><tr><th>항목 (억원)</th><th>2022</th><th>2023</th><th>2024</th></tr></thead>
+          <tbody>
+            <tr><td>매출액</td><td>3,022,314</td><td>2,589,355</td><td>3,001,222</td></tr>
+            <tr><td>매출총이익</td><td class="pos">981,344</td><td class="pos">659,032</td><td class="pos">992,145</td></tr>
+            <tr><td>영업이익</td><td class="pos">435,670</td><td class="neg">64,720</td><td class="pos">322,440</td></tr>
+            <tr><td>당기순이익</td><td class="pos">374,250</td><td class="neg">148,880</td><td class="pos">271,560</td></tr>
+            <tr><td>영업이익률</td><td class="pos">14.4%</td><td class="neg">2.5%</td><td class="pos">10.7%</td></tr>
+          </tbody>
+        </table></div>
+
+        <div id="fs-balance" style="display:none"><table class="fs-table">
+          <thead><tr><th>항목 (억원)</th><th>2022</th><th>2023</th><th>2024</th></tr></thead>
+          <tbody>
+            <tr><td>자산총계</td><td>4,481,229</td><td>4,556,027</td><td>4,737,851</td></tr>
+            <tr><td>유동자산</td><td>1,979,243</td><td>1,782,034</td><td>2,012,330</td></tr>
+            <tr><td>부채총계</td><td>1,222,784</td><td>1,377,020</td><td>1,343,220</td></tr>
+            <tr><td>자본총계</td><td class="pos">3,258,445</td><td class="pos">3,179,007</td><td class="pos">3,394,631</td></tr>
+            <tr><td>부채비율</td><td>37.5%</td><td>43.3%</td><td>39.6%</td></tr>
+          </tbody>
+        </table></div>
+
+        <div id="fs-cashflow" style="display:none"><table class="fs-table">
+          <thead><tr><th>항목 (억원)</th><th>2022</th><th>2023</th><th>2024</th></tr></thead>
+          <tbody>
+            <tr><td>영업현금흐름</td><td class="pos">625,980</td><td class="pos">450,220</td><td class="pos">578,340</td></tr>
+            <tr><td>투자현금흐름</td><td class="neg">-698,230</td><td class="neg">-521,440</td><td class="neg">-612,870</td></tr>
+            <tr><td>재무현금흐름</td><td class="neg">-98,320</td><td class="neg">-112,560</td><td class="neg">-105,240</td></tr>
+            <tr><td>잉여현금흐름(FCF)</td><td class="pos">92,970</td><td class="pos">21,340</td><td class="pos">77,020</td></tr>
+          </tbody>
+        </table></div>
+
+        <div class="slabel" style="margin-top:20px">투자지표</div>
+        <div class="ratio-grid">
+          <div class="ratio-card"><div class="ratio-name">PER</div><div class="ratio-val c-amber">14.2배</div><div class="ratio-bar-bg"><div class="ratio-fill" style="width:62%;background:var(--accent3)"></div></div><div class="ratio-bench">업종 평균 18.4배</div></div>
+          <div class="ratio-card"><div class="ratio-name">ROE</div><div class="ratio-val c-green">12.4%</div><div class="ratio-bar-bg"><div class="ratio-fill" style="width:55%;background:var(--accent2)"></div></div><div class="ratio-bench">업종 평균 10.8%</div></div>
+          <div class="ratio-card"><div class="ratio-name">부채비율</div><div class="ratio-val c-green">39.6%</div><div class="ratio-bar-bg"><div class="ratio-fill" style="width:28%;background:var(--accent2)"></div></div><div class="ratio-bench">업종 평균 68.2%</div></div>
+          <div class="ratio-card"><div class="ratio-name">EPS</div><div class="ratio-val c-blue">4,019원</div><div class="ratio-bar-bg"><div class="ratio-fill" style="width:70%;background:var(--accent)"></div></div><div class="ratio-bench">전년 대비 +83%</div></div>
+        </div>
+      </div>
+
+      <!-- SIDE -->
+      <div class="side-col">
+        <div class="side-header">
+          <span><span class="live-dot"></span>경제 뉴스</span>
+          <span style="font-size:10px;color:var(--text3);font-family:var(--mono)" id="newsUpdateTime">로딩중...</span>
+        </div>
+        <!-- 뉴스 탭 -->
+        <div style="display:flex;gap:4px;margin-bottom:10px;">
+          <button class="fs-tab active" onclick="loadNews('stock',this)" style="font-size:11px;">주식</button>
+          <button class="fs-tab" onclick="loadNews('economy',this)" style="font-size:11px;">경제</button>
+          <button class="fs-tab" onclick="loadNews('world',this)" style="font-size:11px;">글로벌</button>
+        </div>
+        <div id="newsFeed">
+          <div style="text-align:center;padding:20px;color:var(--text3);font-size:12px;">
+            <div style="margin-bottom:8px;">📰</div>
+            뉴스 불러오는 중...
+          </div>
+        </div>
+
+        <div class="note-section">
+          <div class="note-lbl">✏ 투자 소견</div>
+
+          <!-- 비로그인: 안내 메시지 -->
+          <div id="noteLoginPrompt" style="background:var(--surface);border:1px solid var(--border2);border-radius:var(--r-sm);padding:16px;text-align:center;margin-bottom:10px;">
+            <div style="font-size:13px;color:var(--text2);margin-bottom:10px;">소견을 작성하려면 로그인이 필요해요</div>
+            <button onclick="googleLogin()" style="display:inline-flex;align-items:center;gap:8px;background:white;color:#1f1f1f;border:none;border-radius:var(--r-sm);padding:8px 16px;font-size:12px;font-family:var(--sans);font-weight:500;cursor:pointer;">
+              <svg width="14" height="14" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+              Google로 로그인
+            </button>
+          </div>
+
+          <!-- 로그인: 작성 영역 -->
+          <div id="noteWriteArea" style="display:none;">
+            <div class="note-target" id="noteTarget">기사를 선택하거나 직접 소견을 작성하세요</div>
+            <textarea class="note-input" id="noteInput" placeholder="투자 관점의 소견을 작성해보세요..."></textarea>
+            <div class="note-actions">
+              <button class="btn-ghost" onclick="clearNote()">취소</button>
+              <button class="btn-primary" onclick="saveNote()">저장</button>
+            </div>
+          </div>
+
+          <div class="saved-notes" id="savedNotes">
+            <div class="saved-note">
+              <div class="saved-note-hd">2026.03.19 · 외국인 순매수 동향</div>
+              2거래일 연속 외국인 순매수. 단기 수급 긍정적이나 미 연준 긴축 장기화 감안 시 상단 제한적. 삼성전자 비중 현 수준 유지.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ PAGE: 종목비교 ══ -->
+  <div class="page" id="page-compare">
+    <div class="compare-wrap">
+      <div class="slabel" style="margin-bottom:16px">종목 비교 분석</div>
+      <div class="compare-search-row">
+        <div class="comp-slot"><span class="comp-slot-label" style="color:var(--accent)">A</span><input type="text" id="cmp1" placeholder="기업명 또는 종목코드" value="삼성전자"/></div>
+        <div class="comp-slot"><span class="comp-slot-label" style="color:var(--accent2)">B</span><input type="text" id="cmp2" placeholder="기업명 또는 종목코드" value="SK하이닉스"/></div>
+        <div class="comp-slot"><span class="comp-slot-label" style="color:var(--accent3)">C</span><input type="text" id="cmp3" placeholder="선택사항"/></div>
+        <button class="btn-primary" onclick="runCompare()">비교 실행</button>
+      </div>
+      <div class="comp-table-wrap">
+        <table class="comp-table" id="compTable">
+          <thead><tr>
+            <th>지표</th>
+            <th style="color:var(--accent)">삼성전자 <span style="font-size:10px;font-family:var(--mono)">(005930)</span></th>
+            <th style="color:var(--accent2)">SK하이닉스 <span style="font-size:10px;font-family:var(--mono)">(000660)</span></th>
+          </tr></thead>
+          <tbody>
+            <tr class="comp-section"><td colspan="3">📈 주가 정보</td></tr>
+            <tr><td>현재 주가</td><td>78,400원</td><td>186,500원</td></tr>
+            <tr><td>시가총액</td><td>468조원</td><td>135조원</td></tr>
+            <tr class="comp-section"><td colspan="3">💰 수익성 지표</td></tr>
+            <tr><td>매출액 (2024)</td><td class="comp-best">300.1조원</td><td>66.2조원</td></tr>
+            <tr><td>영업이익률</td><td>10.7%</td><td class="comp-best">35.5%</td></tr>
+            <tr><td>ROE</td><td>12.4%</td><td class="comp-best">27.8%</td></tr>
+            <tr class="comp-section"><td colspan="3">📊 밸류에이션</td></tr>
+            <tr><td>PER</td><td class="comp-best">14.2배</td><td>15.8배</td></tr>
+            <tr><td>PBR</td><td class="comp-best">1.38배</td><td>2.45배</td></tr>
+            <tr><td>배당수익률</td><td class="comp-best">2.3%</td><td>0.8%</td></tr>
+            <tr class="comp-section"><td colspan="3">🏦 재무 건전성</td></tr>
+            <tr><td>부채비율</td><td class="comp-best">39.6%</td><td>52.1%</td></tr>
+            <tr><td>유동비율</td><td class="comp-best">218%</td><td>196%</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="slabel" style="margin-top:24px">비교 차트</div>
+      <div class="comp-chart-row" style="grid-template-columns:1fr 1fr">
+        <div class="comp-chart-card">
+          <div class="comp-chart-title">영업이익률 (%)</div>
+          <div class="comp-bar-row"><div class="comp-bar-name">삼성전자</div><div class="comp-bar-bg"><div class="comp-bar-fill" style="width:30%;background:var(--accent)"><span style="color:white">10.7%</span></div></div></div>
+          <div class="comp-bar-row"><div class="comp-bar-name">SK하이닉스</div><div class="comp-bar-bg"><div class="comp-bar-fill" style="width:100%;background:var(--accent2)"><span style="color:#0b2e20">35.5%</span></div></div></div>
+        </div>
+        <div class="comp-chart-card">
+          <div class="comp-chart-title">ROE (%)</div>
+          <div class="comp-bar-row"><div class="comp-bar-name">삼성전자</div><div class="comp-bar-bg"><div class="comp-bar-fill" style="width:45%;background:var(--accent)"><span style="color:white">12.4%</span></div></div></div>
+          <div class="comp-bar-row"><div class="comp-bar-name">SK하이닉스</div><div class="comp-bar-bg"><div class="comp-bar-fill" style="width:100%;background:var(--accent2)"><span style="color:#0b2e20">27.8%</span></div></div></div>
+        </div>
+        <div class="comp-chart-card">
+          <div class="comp-chart-title">PER (배) — 낮을수록 저평가</div>
+          <div class="comp-bar-row"><div class="comp-bar-name">삼성전자</div><div class="comp-bar-bg"><div class="comp-bar-fill" style="width:90%;background:var(--accent)"><span style="color:white">14.2배</span></div></div></div>
+          <div class="comp-bar-row"><div class="comp-bar-name">SK하이닉스</div><div class="comp-bar-bg"><div class="comp-bar-fill" style="width:100%;background:var(--accent2)"><span style="color:#0b2e20">15.8배</span></div></div></div>
+        </div>
+        <div class="comp-chart-card">
+          <div class="comp-chart-title">부채비율 (%) — 낮을수록 안전</div>
+          <div class="comp-bar-row"><div class="comp-bar-name">삼성전자</div><div class="comp-bar-bg"><div class="comp-bar-fill" style="width:76%;background:var(--accent)"><span style="color:white">39.6%</span></div></div></div>
+          <div class="comp-bar-row"><div class="comp-bar-name">SK하이닉스</div><div class="comp-bar-bg"><div class="comp-bar-fill" style="width:100%;background:var(--accent3)"><span style="color:#2e1800">52.1%</span></div></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ PAGE: 내 노트 ══ -->
+  <div class="page" id="page-notes">
+    <div class="notes-page-wrap">
+      <div class="slabel" style="margin-bottom:20px">내 투자 노트</div>
+      <div id="allNotes">
+        <div class="saved-note" style="margin-bottom:10px">
+          <div class="saved-note-hd">2026.03.19 · 외국인 순매수 동향</div>
+          2거래일 연속 외국인 순매수. 단기 수급 긍정적이나 미 연준 긴축 장기화 감안 시 상단 제한적. 삼성전자 비중 현 수준 유지.
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /appScreen -->
+
+<div class="toast" id="toast"></div>
+
+<script>
+let selectedNews = '';
+
+const SAMPLE = {
+  /* ── 반도체/IT ── */
+  '삼성전자':       { ticker:'005930', sector:'반도체·전기전자', market:'KOSPI', price:'78,400',  chg:'▲ 900 (+1.16%)',   chgUp:true,  cap:'468조원', per:'14.2x', pbr:'1.38x', roe:'12.4%', revenue:[236,302,258,300], years:['2021','2022','2023','2024'] },
+  'SK하이닉스':     { ticker:'000660', sector:'반도체',          market:'KOSPI', price:'186,500', chg:'▲ 5,100 (+2.81%)', chgUp:true,  cap:'135조원', per:'15.8x', pbr:'2.45x', roe:'27.8%', revenue:[42,44,33,66],    years:['2021','2022','2023','2024'] },
+  'NAVER':          { ticker:'035420', sector:'인터넷·플랫폼',   market:'KOSPI', price:'178,500', chg:'▼ 1,100 (-0.61%)', chgUp:false, cap:'29조원',  per:'22.4x', pbr:'1.85x', roe:'8.2%',  revenue:[6,8,9,10],      years:['2021','2022','2023','2024'] },
+  '카카오':         { ticker:'035720', sector:'인터넷·플랫폼',   market:'KOSPI', price:'38,200',  chg:'▼ 450 (-1.16%)',  chgUp:false, cap:'17조원',  per:'31.2x', pbr:'1.12x', roe:'3.6%',  revenue:[6,7,8,8],       years:['2021','2022','2023','2024'] },
+  'LG전자':         { ticker:'066570', sector:'전기전자',         market:'KOSPI', price:'98,400',  chg:'▲ 1,200 (+1.23%)',chgUp:true,  cap:'16조원',  per:'18.3x', pbr:'0.88x', roe:'4.8%',  revenue:[74,83,84,87],   years:['2021','2022','2023','2024'] },
+  'LG디스플레이':   { ticker:'034220', sector:'디스플레이',       market:'KOSPI', price:'9,840',   chg:'▼ 160 (-1.60%)',  chgUp:false, cap:'3.5조원', per:'N/A',   pbr:'0.42x', roe:'-8.2%', revenue:[29,38,26,23],   years:['2021','2022','2023','2024'] },
+  '삼성SDI':        { ticker:'006400', sector:'2차전지',          market:'KOSPI', price:'258,000', chg:'▼ 3,000 (-1.15%)',chgUp:false, cap:'17조원',  per:'18.7x', pbr:'1.12x', roe:'6.0%',  revenue:[13,20,23,17],   years:['2021','2022','2023','2024'] },
+  'SK스퀘어':       { ticker:'402340', sector:'IT지주',           market:'KOSPI', price:'68,200',  chg:'▲ 800 (+1.19%)',  chgUp:true,  cap:'9.4조원', per:'8.2x',  pbr:'0.62x', roe:'7.6%',  revenue:[2,3,3,3],       years:['2021','2022','2023','2024'] },
+  '카카오뱅크':     { ticker:'323410', sector:'인터넷은행',       market:'KOSPI', price:'22,450',  chg:'▼ 350 (-1.53%)',  chgUp:false, cap:'10조원',  per:'24.1x', pbr:'1.54x', roe:'6.4%',  revenue:[1,1,2,2],       years:['2021','2022','2023','2024'] },
+  '크래프톤':       { ticker:'259960', sector:'게임',             market:'KOSPI', price:'295,000', chg:'▲ 4,500 (+1.55%)',chgUp:true,  cap:'13조원',  per:'19.2x', pbr:'2.34x', roe:'12.2%', revenue:[2,2,2,2],       years:['2021','2022','2023','2024'] },
+  'HPSP':           { ticker:'403870', sector:'반도체 장비',      market:'KOSDAQ',price:'48,200',  chg:'▲ 1,100 (+2.33%)',chgUp:true,  cap:'2.4조원', per:'28.4x', pbr:'6.12x', roe:'21.8%', revenue:[0.1,0.2,0.3,0.4],years:['2021','2022','2023','2024'] },
+  '리노공업':       { ticker:'058470', sector:'반도체 부품',      market:'KOSDAQ',price:'168,000', chg:'▲ 2,000 (+1.20%)',chgUp:true,  cap:'1.9조원', per:'22.1x', pbr:'3.88x', roe:'17.6%', revenue:[0.2,0.3,0.4,0.4],years:['2021','2022','2023','2024'] },
+
+  /* ── 자동차 ── */
+  '현대차':         { ticker:'005380', sector:'자동차',           market:'KOSPI', price:'212,000', chg:'▲ 500 (+0.24%)',  chgUp:true,  cap:'45조원',  per:'5.8x',  pbr:'0.72x', roe:'12.8%', revenue:[117,142,162,175],years:['2021','2022','2023','2024'] },
+  '기아':           { ticker:'000270', sector:'자동차',           market:'KOSPI', price:'98,500',  chg:'▲ 1,200 (+1.23%)',chgUp:true,  cap:'39조원',  per:'5.2x',  pbr:'0.88x', roe:'17.2%', revenue:[69,86,100,115],  years:['2021','2022','2023','2024'] },
+  '현대모비스':     { ticker:'012330', sector:'자동차부품',       market:'KOSPI', price:'242,000', chg:'▼ 1,000 (-0.41%)',chgUp:false, cap:'23조원',  per:'7.4x',  pbr:'0.68x', roe:'9.2%',  revenue:[38,44,57,62],   years:['2021','2022','2023','2024'] },
+  'HL만도':         { ticker:'204320', sector:'자동차부품',       market:'KOSPI', price:'38,550',  chg:'▲ 450 (+1.18%)',  chgUp:true,  cap:'1.8조원', per:'12.4x', pbr:'0.72x', roe:'5.8%',  revenue:[6,7,8,9],       years:['2021','2022','2023','2024'] },
+  '현대위아':       { ticker:'011210', sector:'자동차부품',       market:'KOSPI', price:'52,300',  chg:'▼ 700 (-1.32%)',  chgUp:false, cap:'1.3조원', per:'8.8x',  pbr:'0.44x', roe:'5.0%',  revenue:[8,9,9,9],       years:['2021','2022','2023','2024'] },
+  '한온시스템':     { ticker:'018880', sector:'자동차부품',       market:'KOSPI', price:'5,820',   chg:'▲ 80 (+1.39%)',   chgUp:true,  cap:'2.6조원', per:'22.4x', pbr:'1.12x', roe:'5.0%',  revenue:[7,8,9,10],      years:['2021','2022','2023','2024'] },
+  '현대제철':       { ticker:'004020', sector:'철강',             market:'KOSPI', price:'28,100',  chg:'▼ 400 (-1.40%)',  chgUp:false, cap:'2.8조원', per:'6.2x',  pbr:'0.28x', roe:'4.5%',  revenue:[20,24,24,23],   years:['2021','2022','2023','2024'] },
+
+  /* ── 바이오/제약 ── */
+  '삼성바이오로직스':{ ticker:'207940', sector:'바이오',          market:'KOSPI', price:'1,038,000',chg:'▲ 12,000 (+1.17%)',chgUp:true,  cap:'74조원',  per:'62.4x', pbr:'7.82x', roe:'12.5%', revenue:[2,3,4,5],       years:['2021','2022','2023','2024'] },
+  '셀트리온':       { ticker:'068270', sector:'바이오',           market:'KOSPI', price:'168,000', chg:'▼ 2,000 (-1.18%)',chgUp:false, cap:'22조원',  per:'28.4x', pbr:'2.88x', roe:'10.2%', revenue:[2,2,3,4],       years:['2021','2022','2023','2024'] },
+  '유한양행':       { ticker:'000100', sector:'제약',             market:'KOSPI', price:'118,000', chg:'▲ 1,500 (+1.29%)',chgUp:true,  cap:'8.4조원', per:'42.1x', pbr:'3.12x', roe:'7.4%',  revenue:[2,2,2,2],       years:['2021','2022','2023','2024'] },
+  '한미약품':       { ticker:'128940', sector:'제약',             market:'KOSPI', price:'358,000', chg:'▲ 4,000 (+1.13%)',chgUp:true,  cap:'4.1조원', per:'38.2x', pbr:'3.44x', roe:'9.0%',  revenue:[1,1,2,2],       years:['2021','2022','2023','2024'] },
+  '종근당':         { ticker:'185750', sector:'제약',             market:'KOSPI', price:'118,500', chg:'▼ 500 (-0.42%)',  chgUp:false, cap:'1.7조원', per:'18.4x', pbr:'1.88x', roe:'10.2%', revenue:[1,1,1,1],       years:['2021','2022','2023','2024'] },
+  '대웅제약':       { ticker:'069620', sector:'제약',             market:'KOSPI', price:'128,000', chg:'▲ 2,000 (+1.59%)',chgUp:true,  cap:'1.7조원', per:'22.4x', pbr:'2.12x', roe:'9.4%',  revenue:[1,1,1,1],       years:['2021','2022','2023','2024'] },
+  'HLB':            { ticker:'028300', sector:'바이오',           market:'KOSDAQ',price:'88,400',  chg:'▲ 2,100 (+2.43%)',chgUp:true,  cap:'7.8조원', per:'N/A',   pbr:'12.4x', roe:'-18.2%',revenue:[0.1,0.1,0.1,0.2],years:['2021','2022','2023','2024'] },
+  '알테오젠':       { ticker:'196170', sector:'바이오',           market:'KOSDAQ',price:'428,000', chg:'▲ 8,000 (+1.90%)',chgUp:true,  cap:'14조원',  per:'N/A',   pbr:'28.4x', roe:'-4.2%', revenue:[0.1,0.1,0.2,0.3],years:['2021','2022','2023','2024'] },
+  '에스티팜':       { ticker:'237690', sector:'원료의약품',       market:'KOSDAQ',price:'88,200',  chg:'▼ 800 (-0.90%)',  chgUp:false, cap:'1.4조원', per:'48.2x', pbr:'4.12x', roe:'8.6%',  revenue:[0.2,0.2,0.3,0.4],years:['2021','2022','2023','2024'] },
+  '리가켐바이오':   { ticker:'141080', sector:'바이오',           market:'KOSDAQ',price:'78,400',  chg:'▲ 1,200 (+1.55%)',chgUp:true,  cap:'2.8조원', per:'N/A',   pbr:'8.82x', roe:'-12.4%',revenue:[0.1,0.1,0.1,0.2],years:['2021','2022','2023','2024'] },
+
+  /* ── 에너지/화학 ── */
+  'POSCO홀딩스':    { ticker:'005490', sector:'철강·소재',        market:'KOSPI', price:'298,000', chg:'▼ 2,000 (-0.67%)',chgUp:false, cap:'25조원',  per:'8.4x',  pbr:'0.42x', roe:'5.0%',  revenue:[76,85,77,79],   years:['2021','2022','2023','2024'] },
+  'LG화학':         { ticker:'051910', sector:'화학·배터리',      market:'KOSPI', price:'298,000', chg:'▼ 3,500 (-1.16%)',chgUp:false, cap:'21조원',  per:'22.4x', pbr:'0.88x', roe:'4.0%',  revenue:[42,52,55,55],   years:['2021','2022','2023','2024'] },
+  'LG에너지솔루션': { ticker:'373220', sector:'2차전지',          market:'KOSPI', price:'368,000', chg:'▼ 4,000 (-1.08%)',chgUp:false, cap:'86조원',  per:'48.2x', pbr:'4.82x', roe:'10.0%', revenue:[18,25,34,36],   years:['2021','2022','2023','2024'] },
+  '롯데케미칼':     { ticker:'011170', sector:'석유화학',         market:'KOSPI', price:'68,200',  chg:'▼ 800 (-1.16%)',  chgUp:false, cap:'2.4조원', per:'N/A',   pbr:'0.22x', roe:'-4.8%', revenue:[18,24,21,20],   years:['2021','2022','2023','2024'] },
+  'SK이노베이션':   { ticker:'096770', sector:'에너지·화학',      market:'KOSPI', price:'98,700',  chg:'▲ 1,200 (+1.23%)',chgUp:true,  cap:'9.0조원', per:'N/A',   pbr:'0.52x', roe:'-2.4%', revenue:[46,77,73,74],   years:['2021','2022','2023','2024'] },
+  'S-Oil':          { ticker:'010950', sector:'정유',             market:'KOSPI', price:'58,400',  chg:'▼ 600 (-1.02%)',  chgUp:false, cap:'6.7조원', per:'12.4x', pbr:'0.82x', roe:'6.6%',  revenue:[22,38,35,34],   years:['2021','2022','2023','2024'] },
+  'GS':             { ticker:'078930', sector:'에너지지주',       market:'KOSPI', price:'42,850',  chg:'▲ 350 (+0.82%)',  chgUp:true,  cap:'3.1조원', per:'6.4x',  pbr:'0.38x', roe:'6.0%',  revenue:[19,30,28,27],   years:['2021','2022','2023','2024'] },
+  '한화솔루션':     { ticker:'009830', sector:'태양광·화학',      market:'KOSPI', price:'22,550',  chg:'▼ 350 (-1.53%)',  chgUp:false, cap:'3.4조원', per:'N/A',   pbr:'0.52x', roe:'-3.2%', revenue:[10,13,13,12],   years:['2021','2022','2023','2024'] },
+  '효성첨단소재':   { ticker:'298050', sector:'첨단소재',         market:'KOSPI', price:'348,000', chg:'▲ 4,000 (+1.16%)',chgUp:true,  cap:'2.2조원', per:'12.4x', pbr:'1.22x', roe:'9.8%',  revenue:[2,2,2,2],       years:['2021','2022','2023','2024'] },
+  'OCI홀딩스':      { ticker:'010060', sector:'태양광·화학',      market:'KOSPI', price:'78,200',  chg:'▼ 800 (-1.01%)',  chgUp:false, cap:'1.1조원', per:'8.4x',  pbr:'0.44x', roe:'5.2%',  revenue:[3,4,3,2],       years:['2021','2022','2023','2024'] },
+
+  /* ── 유통/소비 ── */
+  '삼성물산':       { ticker:'028260', sector:'건설·상사',        market:'KOSPI', price:'148,000', chg:'▲ 1,500 (+1.02%)',chgUp:true,  cap:'29조원',  per:'18.2x', pbr:'0.88x', roe:'4.8%',  revenue:[37,42,44,46],   years:['2021','2022','2023','2024'] },
+  '롯데쇼핑':       { ticker:'023530', sector:'유통',             market:'KOSPI', price:'58,200',  chg:'▼ 800 (-1.36%)',  chgUp:false, cap:'2.1조원', per:'N/A',   pbr:'0.18x', roe:'-1.2%', revenue:[16,16,16,15],   years:['2021','2022','2023','2024'] },
+  '이마트':         { ticker:'139480', sector:'유통',             market:'KOSPI', price:'48,350',  chg:'▼ 650 (-1.33%)',  chgUp:false, cap:'1.4조원', per:'N/A',   pbr:'0.22x', roe:'-2.8%', revenue:[27,29,30,30],   years:['2021','2022','2023','2024'] },
+  '신세계':         { ticker:'004170', sector:'유통·백화점',      market:'KOSPI', price:'158,000', chg:'▲ 2,000 (+1.28%)',chgUp:true,  cap:'2.1조원', per:'8.4x',  pbr:'0.38x', roe:'4.5%',  revenue:[6,8,9,9],       years:['2021','2022','2023','2024'] },
+  '현대백화점':     { ticker:'069960', sector:'유통·백화점',      market:'KOSPI', price:'48,200',  chg:'▼ 600 (-1.23%)',  chgUp:false, cap:'1.2조원', per:'7.2x',  pbr:'0.28x', roe:'3.9%',  revenue:[4,5,5,5],       years:['2021','2022','2023','2024'] },
+  'CJ제일제당':     { ticker:'097950', sector:'식품',             market:'KOSPI', price:'258,000', chg:'▼ 3,000 (-1.15%)',chgUp:false, cap:'3.4조원', per:'12.4x', pbr:'0.52x', roe:'4.2%',  revenue:[22,28,29,30],   years:['2021','2022','2023','2024'] },
+  '오리온':         { ticker:'271560', sector:'식품',             market:'KOSPI', price:'98,200',  chg:'▲ 1,200 (+1.24%)',chgUp:true,  cap:'3.8조원', per:'14.2x', pbr:'2.12x', roe:'14.8%', revenue:[2,2,2,3],       years:['2021','2022','2023','2024'] },
+  '하이브':         { ticker:'352820', sector:'엔터테인먼트',     market:'KOSPI', price:'188,000', chg:'▼ 2,000 (-1.05%)',chgUp:false, cap:'7.0조원', per:'28.4x', pbr:'3.88x', roe:'13.6%', revenue:[1,2,2,2],       years:['2021','2022','2023','2024'] },
+  '아모레퍼시픽':   { ticker:'090430', sector:'화장품',           market:'KOSPI', price:'98,500',  chg:'▲ 1,500 (+1.55%)',chgUp:true,  cap:'5.7조원', per:'38.4x', pbr:'1.42x', roe:'3.7%',  revenue:[5,4,4,4],       years:['2021','2022','2023','2024'] },
+  'BGF리테일':      { ticker:'282330', sector:'편의점',           market:'KOSPI', price:'148,000', chg:'▲ 2,000 (+1.37%)',chgUp:true,  cap:'2.5조원', per:'18.4x', pbr:'3.12x', roe:'17.0%', revenue:[7,8,8,9],       years:['2021','2022','2023','2024'] },
+  'GS리테일':       { ticker:'007070', sector:'유통',             market:'KOSPI', price:'18,850',  chg:'▼ 250 (-1.31%)',  chgUp:false, cap:'1.1조원', per:'N/A',   pbr:'0.32x', roe:'-1.8%', revenue:[9,10,11,11],    years:['2021','2022','2023','2024'] },
+  '호텔신라':       { ticker:'008770', sector:'면세·호텔',        market:'KOSPI', price:'48,200',  chg:'▼ 600 (-1.23%)',  chgUp:false, cap:'1.3조원', per:'22.4x', pbr:'1.12x', roe:'5.0%',  revenue:[2,3,4,4],       years:['2021','2022','2023','2024'] },
+};
+
+function initChart(d) {
+  const el = document.getElementById('revenueChart');
+  if (!el) return;
+  const maxVal = Math.max(...d.revenue);
+  const rows = d.revenue.map((v, i) => {
+    const px = Math.max(8, Math.round((v / maxVal) * 100));
+    const isLast = (i === d.revenue.length - 1);
+    const bg = isLast ? '#4f8ef7' : 'rgba(255,255,255,0.1)';
+    const vc = isLast ? '#4f8ef7' : '#7d839e';
+    const lc = isLast ? '#4f8ef7' : '#484e65';
+    return '<div class="rev-col">'
+      + '<div class="rev-val" style="color:' + vc + '">' + v + '조</div>'
+      + '<div class="rev-bar" style="height:' + px + 'px;background:' + bg + '"></div>'
+      + '<div class="rev-lbl" style="color:' + lc + '">' + d.years[i] + '</div>'
+      + '</div>';
+  }).join('');
+  el.innerHTML = '<div class="rev-chart">' + rows + '</div>';
+}
+
+function loadCompany(name) {
+  const d = SAMPLE[name]; if (!d) return;
+  document.getElementById('coName').textContent = name;
+  document.getElementById('coTicker').textContent = d.ticker;
+  document.getElementById('coSector').textContent = d.sector;
+  document.getElementById('coPrice').innerHTML = d.price + '<span style="font-size:13px;color:var(--text2)">원</span>';
+  const c = document.getElementById('coChg');
+  c.textContent = d.chg; c.className = 'price-chg ' + (d.chgUp?'up-c':'dn-c');
+  document.getElementById('kpi-cap').textContent = d.cap;
+  document.getElementById('kpi-per').textContent = d.per;
+  document.getElementById('kpi-pbr').textContent = d.pbr;
+  document.getElementById('kpi-roe').textContent = d.roe;
+  initChart(d);
+}
+
+function doSearch() {
+  const q = document.getElementById('searchInput').value.trim();
+  const match = Object.keys(SAMPLE).find(k => k.includes(q) || SAMPLE[k].ticker === q);
+  if (match) { loadCompany(match); showToast('📊 ' + match + ' 로드 완료'); }
+  else showToast('❌ 데이터를 찾을 수 없습니다');
+}
+
+function quickLoad(name, el) {
+  document.querySelectorAll('.wchip').forEach(c=>c.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('searchInput').value = name;
+  loadCompany(name);
+  showToast('📊 ' + name + ' 로드 완료');
+}
+
+function toggleWatchlist() {
+  const panel = document.getElementById('wlPanel');
+  const btn = document.getElementById('wlToggleBtn');
+  const icon = document.getElementById('wlToggleIcon');
+  if (panel.style.display === 'none') {
+    panel.style.display = 'block';
+    icon.textContent = '▲';
+    btn.innerHTML = '<span>▲</span> 접기';
+  } else {
+    panel.style.display = 'none';
+    icon.textContent = '▼';
+    btn.innerHTML = '<span>▼</span> 펼치기';
+  }
+}
+
+function filterSector(sector, el) {
+  document.querySelectorAll('.fs-tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  const chips = document.querySelectorAll('#watchlist .wchip');
+  chips.forEach(chip => {
+    if (sector === '전체' || chip.dataset.sector === sector) {
+      chip.style.display = 'flex';
+    } else {
+      chip.style.display = 'none';
+    }
+  });
+}
+
+function switchFsTab(id, el) {
+  document.querySelectorAll('.fs-tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  ['income','balance','cashflow'].forEach(t=>{
+    document.getElementById('fs-'+t).style.display = t===id?'block':'none';
+  });
+}
+
+function runCompare() {
+  const names = [document.getElementById('cmp1').value.trim(), document.getElementById('cmp2').value.trim(), document.getElementById('cmp3').value.trim()].filter(Boolean);
+  if (names.length < 2) { showToast('❌ 2개 이상 입력해주세요'); return; }
+  showToast('✅ 비교 분석 완료 (샘플 데이터)');
+}
+
+function selNews(el, title, url) {
+  document.querySelectorAll('.news-card').forEach(n=>n.classList.remove('sel'));
+  el.classList.add('sel'); selectedNews = title;
+  document.getElementById('noteTarget').textContent = '📰 ' + title;
+  document.getElementById('noteInput').focus();
+}
+
+// 네이버 뉴스 직접 링크 방식
+const NEWS_DATA = {
+  stock: [
+    { title:'삼성전자 주가 분석 및 최신 뉴스', source:'네이버 금융', time:'실시간', url:'https://finance.naver.com/item/news.naver?code=005930', tag:'삼성전자', tagClass:'ntag-s' },
+    { title:'SK하이닉스 주가 분석 및 최신 뉴스', source:'네이버 금융', time:'실시간', url:'https://finance.naver.com/item/news.naver?code=000660', tag:'SK하이닉스', tagClass:'ntag-s' },
+    { title:'코스피 시장 전체 뉴스', source:'네이버 금융', time:'실시간', url:'https://finance.naver.com/news/news_list.naver?mode=LSS2D&section_id=101&section_id2=258', tag:'코스피', tagClass:'ntag-m' },
+    { title:'코스닥 시장 전체 뉴스', source:'네이버 금융', time:'실시간', url:'https://finance.naver.com/news/news_list.naver?mode=LSS2D&section_id=101&section_id2=259', tag:'코스닥', tagClass:'ntag-m' },
+    { title:'LG에너지솔루션 주가 및 뉴스', source:'네이버 금융', time:'실시간', url:'https://finance.naver.com/item/news.naver?code=373220', tag:'2차전지', tagClass:'ntag-e' },
+    { title:'현대차 주가 분석 및 최신 뉴스', source:'네이버 금융', time:'실시간', url:'https://finance.naver.com/item/news.naver?code=005380', tag:'자동차', tagClass:'ntag-s' },
+    { title:'NAVER 주가 분석 및 최신 뉴스', source:'네이버 금융', time:'실시간', url:'https://finance.naver.com/item/news.naver?code=035420', tag:'IT', tagClass:'ntag-s' },
+    { title:'셀트리온 주가 분석 및 최신 뉴스', source:'네이버 금융', time:'실시간', url:'https://finance.naver.com/item/news.naver?code=068270', tag:'바이오', tagClass:'ntag-e' },
+  ],
+  economy: [
+    { title:'오늘의 주요 경제 뉴스', source:'네이버 금융', time:'실시간', url:'https://finance.naver.com/news/mainnews.naver', tag:'경제', tagClass:'ntag-m' },
+    { title:'환율 시장 동향 및 뉴스', source:'네이버 금융', time:'실시간', url:'https://finance.naver.com/news/news_list.naver?mode=LSS2D&section_id=101&section_id2=263', tag:'환율', tagClass:'ntag-m' },
+    { title:'채권·금리 시장 뉴스', source:'네이버 금융', time:'실시간', url:'https://finance.naver.com/news/news_list.naver?mode=LSS2D&section_id=101&section_id2=261', tag:'금리', tagClass:'ntag-m' },
+    { title:'부동산·건설 시장 뉴스', source:'네이버 금융', time:'실시간', url:'https://finance.naver.com/news/news_list.naver?mode=LSS2D&section_id=101&section_id2=267', tag:'부동산', tagClass:'ntag-e' },
+    { title:'산업·기업 경제 뉴스', source:'네이버 금융', time:'실시간', url:'https://finance.naver.com/news/news_list.naver?mode=LSS2D&section_id=101&section_id2=260', tag:'산업', tagClass:'ntag-s' },
+    { title:'금융·증권 시장 뉴스', source:'네이버 금융', time:'실시간', url:'https://finance.naver.com/news/news_list.naver?mode=LSS2D&section_id=101&section_id2=262', tag:'금융', tagClass:'ntag-m' },
+    { title:'공시·메모 최신 뉴스', source:'네이버 금융', time:'실시간', url:'https://finance.naver.com/news/news_list.naver?mode=LSS2D&section_id=101&section_id2=265', tag:'공시', tagClass:'ntag-e' },
+    { title:'국내 거시경제 뉴스', source:'네이버 금융', time:'실시간', url:'https://finance.naver.com/news/news_list.naver?mode=LSS2D&section_id=101&section_id2=264', tag:'거시경제', tagClass:'ntag-m' },
+  ],
+  world: [
+    { title:'미국 증시 뉴스 (NYSE/NASDAQ)', source:'네이버 금융', time:'실시간', url:'https://finance.naver.com/news/news_list.naver?mode=LSS2D&section_id=101&section_id2=269', tag:'미국', tagClass:'ntag-s' },
+    { title:'중국·아시아 증시 뉴스', source:'네이버 금융', time:'실시간', url:'https://finance.naver.com/news/news_list.naver?mode=LSS2D&section_id=101&section_id2=270', tag:'아시아', tagClass:'ntag-m' },
+    { title:'유럽 증시 및 경제 뉴스', source:'네이버 금융', time:'실시간', url:'https://finance.naver.com/news/news_list.naver?mode=LSS2D&section_id=101&section_id2=271', tag:'유럽', tagClass:'ntag-e' },
+    { title:'원자재·원유 시장 뉴스', source:'네이버 금융', time:'실시간', url:'https://finance.naver.com/news/news_list.naver?mode=LSS2D&section_id=101&section_id2=272', tag:'원자재', tagClass:'ntag-m' },
+    { title:'글로벌 경제 주요 뉴스', source:'네이버 금융', time:'실시간', url:'https://finance.naver.com/news/news_list.naver?mode=LSS2D&section_id=101&section_id2=268', tag:'글로벌', tagClass:'ntag-m' },
+    { title:'엔비디아·빅테크 최신 뉴스', source:'네이버 금융', time:'실시간', url:'https://finance.naver.com/search/searchList.naver?query=엔비디아', tag:'빅테크', tagClass:'ntag-s' },
+    { title:'미 연준 금리 정책 뉴스', source:'네이버 금융', time:'실시간', url:'https://finance.naver.com/search/searchList.naver?query=연준+금리', tag:'연준', tagClass:'ntag-e' },
+    { title:'WTI 원유 시장 뉴스', source:'네이버 금융', time:'실시간', url:'https://finance.naver.com/search/searchList.naver?query=WTI+원유', tag:'원유', tagClass:'ntag-m' },
+  ]
+};
+
+const NEWS_FALLBACK = {
+  stock: [
+    { title:'삼성전자, HBM4 양산 속도 높인다…엔비디아 수주 기대', source:'매일경제', time:'4시간 전', url:'https://finance.naver.com/news/', tag:'반도체', tagClass:'ntag-s' },
+    { title:'SK하이닉스, 1분기 영업이익 5조 돌파 전망', source:'한국경제', time:'5시간 전', url:'https://finance.naver.com/news/', tag:'실적', tagClass:'ntag-e' },
+    { title:'코스피 2,650 돌파…외국인 순매수 이틀째 지속', source:'연합인포맥스', time:'6시간 전', url:'https://finance.naver.com/news/', tag:'시장동향', tagClass:'ntag-m' },
+    { title:'2차전지 주가 반등…LG에너지솔루션 강세', source:'머니투데이', time:'7시간 전', url:'https://finance.naver.com/news/', tag:'2차전지', tagClass:'ntag-s' },
+    { title:'바이오 대장주 셀트리온, 유럽 판매 허가 획득', source:'바이오스펙테이터', time:'8시간 전', url:'https://finance.naver.com/news/', tag:'바이오', tagClass:'ntag-e' },
+  ],
+  economy: [
+    { title:'한은, 기준금리 추가 인하 시사…시장 반응은?', source:'한국경제', time:'2시간 전', url:'https://www.hankyung.com/economy', tag:'금리', tagClass:'ntag-m' },
+    { title:'원/달러 환율 1,420원대…수출주 수혜 전망', source:'조선비즈', time:'3시간 전', url:'https://biz.chosun.com', tag:'환율', tagClass:'ntag-m' },
+    { title:'소비자물가 2%대 안정…금리 인하 기대 확산', source:'매일경제', time:'5시간 전', url:'https://www.mk.co.kr', tag:'물가', tagClass:'ntag-m' },
+    { title:'수출 6개월 연속 플러스…반도체 견인', source:'산업통상자원부', time:'6시간 전', url:'https://www.motie.go.kr', tag:'수출', tagClass:'ntag-e' },
+    { title:'부동산 PF 리스크 완화…건설사 주가 반등', source:'한경', time:'8시간 전', url:'https://www.hankyung.com', tag:'부동산', tagClass:'ntag-s' },
+  ],
+  world: [
+    { title:'미 연준, 금리 동결…연내 인하 2회 시사', source:'Bloomberg', time:'1시간 전', url:'https://www.bloomberg.com', tag:'연준', tagClass:'ntag-m' },
+    { title:'나스닥 0.8% 상승…엔비디아 신고가 경신', source:'Reuters', time:'3시간 전', url:'https://www.reuters.com', tag:'미국', tagClass:'ntag-s' },
+    { title:'중국 경기 부양책 발표…원자재 시장 들썩', source:'CNBC', time:'5시간 전', url:'https://www.cnbc.com', tag:'중국', tagClass:'ntag-m' },
+    { title:'WTI 유가 80달러 돌파…중동 긴장 고조', source:'FT', time:'6시간 전', url:'https://www.ft.com', tag:'원유', tagClass:'ntag-e' },
+    { title:'엔화 약세 지속…일본은행 개입 우려', source:'Nikkei', time:'8시간 전', url:'https://www.nikkei.com', tag:'환율', tagClass:'ntag-m' },
+  ]
+};
+
+let currentNewsType = 'stock';
+
+function loadNews(type, el) {
+  if (el) {
+    document.querySelectorAll('.fs-tab').forEach(t => {
+      if (t.onclick && t.onclick.toString().includes('loadNews')) t.classList.remove('active');
+    });
+    el.classList.add('active');
+  }
+  currentNewsType = type;
+  renderNews(NEWS_DATA[type]);
+  document.getElementById('newsUpdateTime').textContent = '네이버 금융';
+}
+
+function renderNews(items) {
+  const feed = document.getElementById('newsFeed');
+  feed.innerHTML = items.map(item => `
+    <div class="news-card sel-able" onclick="selNewsItem(this, '${item.title.replace(/'/g,"\'")}', '${item.url}')">
+      <div class="news-src">${item.source}</div>
+      <div class="news-ttl">${item.title}</div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-top:5px;">
+        <div><span class="ntag ${item.tagClass}">${item.tag}</span></div>
+        <a href="${item.url}" target="_blank" onclick="event.stopPropagation()" 
+           style="font-size:10px;color:var(--accent);font-family:var(--mono);text-decoration:none;">
+          기사 보기 →
+        </a>
+      </div>
+      <div class="news-time">${item.time}</div>
+    </div>`).join('');
+}
+
+function selNewsItem(el, title, url) {
+  document.querySelectorAll('.news-card').forEach(n=>n.classList.remove('sel'));
+  el.classList.add('sel');
+  selectedNews = title;
+  document.getElementById('noteTarget').textContent = '📰 ' + title;
+  if (document.getElementById('noteWriteArea').style.display !== 'none') {
+    document.getElementById('noteInput').focus();
+  }
+}
+
+function timeAgo(date) {
+  const diff = Math.floor((new Date() - date) / 60000);
+  if (diff < 60) return diff + '분 전';
+  if (diff < 1440) return Math.floor(diff/60) + '시간 전';
+  return Math.floor(diff/1440) + '일 전';
+}
+
+function saveNote() {
+  const text = document.getElementById('noteInput').value.trim();
+  if (!text) { showToast('❌ 소견을 입력해주세요'); return; }
+  const now = new Date();
+  const d = `${now.getFullYear()}.${String(now.getMonth()+1).padStart(2,'0')}.${String(now.getDate()).padStart(2,'0')}`;
+  const hd = d + ' · ' + (selectedNews || '개인 소견');
+  const html = `<div class="saved-note" style="margin-bottom:7px"><div class="saved-note-hd">${hd}</div>${text}</div>`;
+  document.getElementById('savedNotes').insertAdjacentHTML('afterbegin', html);
+  document.getElementById('allNotes').insertAdjacentHTML('afterbegin', html);
+  document.getElementById('noteInput').value = '';
+  document.getElementById('noteTarget').textContent = '기사를 선택하거나 직접 소견을 작성하세요';
+  selectedNews = '';
+  document.querySelectorAll('.news-card').forEach(n=>n.classList.remove('sel'));
+  showToast('✅ 소견이 저장되었습니다');
+}
+
+function clearNote() {
+  document.getElementById('noteInput').value = '';
+  document.getElementById('noteTarget').textContent = '기사를 선택하거나 직접 소견을 작성하세요';
+  selectedNews = '';
+  document.querySelectorAll('.news-card').forEach(n=>n.classList.remove('sel'));
+}
+
+function showPage(id, el) {
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  el.classList.add('active');
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 2800);
+}
+
+// 페이지 로드 시 초기화
+document.addEventListener('DOMContentLoaded', function() {
+  loadCompany('삼성전자');
+  loadNews('stock', null);
+});
+</script>
+</body>
+</html>
